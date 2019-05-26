@@ -1,4 +1,4 @@
-const {getMeShort} = require('./cool-file')
+const {getMeShort, getMeLong} = require('./cool-file')
 // server.js
 // where your node app starts
 var bodyParser = require('body-parser')
@@ -27,7 +27,8 @@ app.post('/api/shorturl/new/', (req, res) => {
 
 
 app.get('/api/shorturl/:num', (req, res) => {
-  
+  console.log(req.params)
+  getMeLong(req, res)
 })
 
 // listen for requests :)

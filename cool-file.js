@@ -22,6 +22,8 @@ let getMeShort = async (req, res) => {
   
   let u = req.body.url
   
+  u = cleanURL(u)
+  
   if(!isValid(u)){
     return res.json({ "error": 'Invalid URL' })
   }
@@ -54,6 +56,43 @@ let getMeShort = async (req, res) => {
 
 
 
+let cleanURL = (u) => {
+  u = u.trim()
+  if(u.startsWith('https://'))
+    u = u.slice(8)
+  if(u.startsWith('http://'))
+    u = u.slice(7)
+  if(!u.startsWith('www'))
+    u = 'www.' + u
+  return u
+}
+
+
+let getMeLong = async (req, res) => {
+  let code = req.params.num
+  
+  let rec = await Url.findOne({ code })
+    .exec()
+    .then(rec => rec)
+    .catch(err => sendError(res))
+  
+  // No need to return the sendError  or the res.json
+  // Calling these will do the trick too
+  // Returning here because its a necessity
+  if(!rec)
+    return sendError(res)
+  
+  console.log('Still here')
+  res.redirect(`https://${rec.url}`)
+  
+}
+
+
+
+let sendError = (res) => {
+  res.json({ "error": 'Invalid URL' })
+}
+
 let getNewCode = async () => {
   return Url.countDocuments({}).exec()
     .then(count => {
@@ -78,5 +117,6 @@ let isValid = (url) => {
 }
 
 module.exports = {
-  getMeShort
+  getMeShort,
+  getMeLong
 }
