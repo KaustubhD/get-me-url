@@ -21,7 +21,7 @@ app.get('/', function(request, response) {
 
 app.post('/api/shorturl/new/', (req, res) => {
   console.log(req.body)
-  return getMeShort(req, res)
+  getMeShort(req, res)
   
 })
 

@@ -15,44 +15,56 @@ var urlSchema = new mongoose.Schema({
   }
 })
 
-var URL = mongoose.model('Url', urlSchema)
+var Url = mongoose.model('Url', urlSchema)
+
 
 let getMeShort = async (req, res) => {
-  let u = req.params.url
+  
+  let u = req.body.url
   
   if(!isValid(u)){
-    return res.json({ error: 'Invalid URL' })
+    return res.json({ "error": 'Invalid URL' })
   }
   
   const record = await isExisting(u)
   if(record)
     return res.json({
-      original_url: record.url,
-      short_url: record.code
+      "original_url": record.url,
+      "short_url": `${req.hostname}/api/shorturl/${record.code}`
     })
   
   // If doesn't exist
-  let newCode = await URL.countDocuments({}).exec((err, count) => count)
-  let temp = new URL({
+  let newCode = await getNewCode()
+  
+  
+  console.log('New Code ' +  newCode + '\nUrl ' + u)
+  let temp = new Url({
     code: newCode,
     url: u
-  }).save()
-  
-  return {
-    original_url: u,
-    short_url: newCode
-  }
+  })
+  console.log(temp)
+  await temp.save()
+  return res.json({
+    "original_url": u,
+    "short_url": `${req.hostname}/api/shorturl/${newCode}`
+  })
 }
 
 
 
 
 
-
+let getNewCode = async () => {
+  return Url.countDocuments({}).exec()
+    .then(count => {
+      return count
+    })
+    .catch(err => err)
+}
 
 
 let isExisting = async (url) => {
-  let rec = await URL.findOne({ url })
+  let rec = await Url.findOne({ url })
   console.log('Return from isExisting : ' + rec)
   return rec
 }
